@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Brave Recovery Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600;0,700;0,800;0,900;1,800&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #F0F0F0;
+  --dark: #181818;
+  --accent: #4B7876;
+  --accent2: #6a9d9b;
+  --white: #ffffff;
+  --mid: #777;
+  --e: cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:16px}
+body{background:var(--bg);color:var(--dark);font-family:'Outfit',sans-serif;overflow-x:hidden}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--dark)}
+::-webkit-scrollbar-thumb{background:var(--accent)}
+a{text-decoration:none}
+
+/* CURSOR */
+.cursor{position:fixed;width:10px;height:10px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .3s var(--e),height .3s var(--e)}
+.cursor-ring{position:fixed;width:36px;height:36px;border:1.5px solid rgba(75,120,118,.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%)}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 52px;height:72px;transition:background .4s,backdrop-filter .4s,box-shadow .4s}
+nav.filled{background:rgba(240,240,240,.92);backdrop-filter:blur(20px);box-shadow:0 1px 0 rgba(24,24,24,.08)}
+.nav-logo-wrap{display:flex;align-items:center;cursor:pointer}
+.nav-logo-wrap svg{height:38px}
+.nav-center{display:flex;gap:32px;list-style:none}
+.nav-center a{font-size:.78rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--dark);position:relative;padding-bottom:3px;transition:color .25s}
+.nav-center a::after{content:'';position:absolute;bottom:0;left:0;width:0;height:1.5px;background:var(--accent);transition:width .3s var(--e)}
+.nav-center a:hover{color:var(--accent)}
+.nav-center a:hover::after{width:100%}
+nav.hero-nav .nav-center a{color:rgba(240,240,240,.75)}
+nav.hero-nav .nav-center a:hover{color:var(--white)}
+nav.hero-nav .nav-pill{border-color:rgba(240,240,240,.35);color:rgba(240,240,240,.85)}
+nav.hero-nav .nav-pill:hover{background:var(--white);color:var(--dark);border-color:var(--white)}
+nav.filled.hero-nav .nav-center a{color:var(--dark)}
+nav.filled.hero-nav .nav-pill{border-color:var(--accent);color:var(--accent)}
+.nav-pill{font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--dark);border:1.5px solid var(--dark);padding:9px 22px;border-radius:100px;transition:background .25s,color .25s,border-color .25s,transform .2s}
+.nav-pill:hover{background:var(--accent);color:var(--white);border-color:var(--accent);transform:translateY(-1px)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:6px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--dark);border-radius:2px;transition:all .3s var(--e)}
+nav.hero-nav .hamburger span{background:var(--white)}
+nav.filled.hero-nav .hamburger span{background:var(--dark)}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-nav{display:none;position:fixed;inset:0;top:72px;z-index:99;background:var(--dark);flex-direction:column;justify-content:center;align-items:center;gap:32px}
+.mobile-nav.open{display:flex}
+.mobile-nav a{font-family:'Montserrat',sans-serif;font-size:2rem;font-weight:800;color:rgba(255,255,255,.7);transition:color .2s}
+.mobile-nav a:hover{color:var(--accent)}
+
+/* HERO */
+#hero{min-height:100vh;background:var(--dark);display:flex;flex-direction:column;justify-content:flex-end;padding:0 52px 80px;position:relative;overflow:hidden}
+.hero-bg-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Montserrat',sans-serif;font-size:clamp(12rem,22vw,22rem);font-weight:900;color:rgba(255,255,255,.025);white-space:nowrap;letter-spacing:-.05em;pointer-events:none;user-select:none;line-height:1}
+.hero-orb{position:absolute;width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(75,120,118,.18) 0%,transparent 70%);top:-100px;right:-100px;pointer-events:none;animation:orbPulse 8s ease-in-out infinite}
+@keyframes orbPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1) translate(-20px,20px)}}
+.hero-top{position:absolute;top:72px;left:0;right:0;display:flex;justify-content:flex-end;padding:28px 52px;gap:48px}
+.hero-badge{font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;color:rgba(240,240,240,.35);font-weight:500;display:flex;align-items:center;gap:10px}
+.hero-badge::before{content:'';display:block;width:28px;height:1px;background:rgba(240,240,240,.2)}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-size:.7rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--accent2);margin-bottom:28px}
+.hero-tag .dot{width:6px;height:6px;background:var(--accent);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-h1{font-family:'Montserrat',sans-serif;font-size:clamp(3.4rem,7vw,7.5rem);font-weight:900;line-height:.95;letter-spacing:-.04em;color:var(--white);margin-bottom:20px}
+.hero-h1 em{font-style:italic;color:var(--accent)}
+.hero-h1 .outline{-webkit-text-stroke:1.5px rgba(240,240,240,.25);color:transparent}
+.hero-bottom{display:grid;grid-template-columns:1fr auto 1fr;align-items:flex-end;gap:40px;margin-top:52px}
+.hero-sub{font-size:1.02rem;color:rgba(240,240,240,.5);line-height:1.75;max-width:360px}
+.hero-cta-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+.hero-cta{background:var(--accent);color:var(--white);font-family:'Montserrat',sans-serif;font-weight:800;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;padding:18px 44px;border-radius:100px;transition:transform .25s var(--e),box-shadow .25s,background .25s;box-shadow:0 8px 40px rgba(75,120,118,.35);white-space:nowrap;display:inline-block;cursor:pointer;border:none}
+.hero-cta:hover{background:var(--white);color:var(--dark);transform:translateY(-3px);box-shadow:0 16px 50px rgba(75,120,118,.2)}
+.hero-cta-note{font-size:.68rem;color:rgba(240,240,240,.28);letter-spacing:.1em;text-transform:uppercase}
+.hero-stats-wrap{display:flex;justify-content:flex-end;gap:40px}
+.hero-stat{text-align:right}
+.hero-stat .v{font-family:'Montserrat',sans-serif;font-size:2.2rem;font-weight:800;color:var(--white);line-height:1}
+.hero-stat .v span{color:var(--accent)}
+.hero-stat .l{font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(240,240,240,.3);margin-top:4px}
+.hero-scroll{position:absolute;bottom:80px;left:52px;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.scroll-line{width:1px;height:64px;background:linear-gradient(to bottom,rgba(240,240,240,.3),transparent);animation:scrollDrop 2s ease-in-out infinite}
+@keyframes scrollDrop{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.scroll-txt{font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(240,240,240,.2);writing-mode:vertical-rl}
+
+/* MARQUEE */
+.marquee-wrap{background:var(--accent);overflow:hidden;padding:16px 0;white-space:nowrap}
+.marquee-inner{display:inline-flex;animation:marquee 18s linear infinite}
+.marquee-item{font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.8);padding:0 40px;display:flex;align-items:center;gap:20px}
+.marquee-item::after{content:'✦';color:rgba(255,255,255,.4);font-size:.6rem}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* SHARED */
+.sec{padding:120px 52px}
+.container{max-width:1200px;margin:0 auto}
+.sec-label{display:inline-flex;align-items:center;gap:12px;font-size:.68rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);margin-bottom:24px}
+.sec-label::before{content:'';display:block;width:32px;height:1.5px;background:currentColor}
+.h2{font-family:'Montserrat',sans-serif;font-size:clamp(2.2rem,4vw,3.8rem);font-weight:800;line-height:1.05;letter-spacing:-.03em;color:var(--dark)}
+.h2 em{font-style:italic;color:var(--accent)}
+.h2-light{color:var(--white)}
+
+/* ABOUT */
+#about{padding:0}
+.about-layout{display:grid;grid-template-columns:1fr 1fr;min-height:80vh}
+.about-left{padding:100px 64px 100px 52px;display:flex;flex-direction:column;justify-content:center;background:var(--bg)}
+.about-left p{font-size:1.05rem;color:#444;line-height:1.85;margin-bottom:18px}
+.about-right{background:var(--dark);padding:100px 52px 100px 64px;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden}
+.about-right::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 80% at 80% 50%,rgba(75,120,118,.1),transparent);pointer-events:none}
+.benefit-list{display:flex;flex-direction:column;gap:14px;margin-top:32px}
+.benefit{display:flex;align-items:center;gap:14px}
+.benefit-check{width:26px;height:26px;border-radius:50%;background:rgba(75,120,118,.1);border:1.5px solid rgba(75,120,118,.25);display:grid;place-items:center;color:var(--accent);font-size:.75rem;flex-shrink:0}
+.benefit span{font-size:.9rem;color:#555}
+.feature-list{display:flex;flex-direction:column;position:relative;z-index:1}
+.feature-item{padding:26px 0;border-bottom:1px solid rgba(255,255,255,.07);display:flex;gap:22px;align-items:flex-start;transition:padding-left .3s var(--e);cursor:default}
+.feature-item:hover{padding-left:10px}
+.feature-item:first-child{padding-top:0}
+.fi-num{font-family:'Montserrat',sans-serif;font-size:.72rem;font-weight:700;color:var(--accent);letter-spacing:.1em;margin-top:3px;flex-shrink:0}
+.fi-title{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;color:var(--white);margin-bottom:5px}
+.fi-desc{font-size:.87rem;color:rgba(240,240,240,.42);line-height:1.7}
+
+/* HOW */
+#how{background:var(--dark);padding:120px 52px}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.07);margin-top:72px}
+.how-card{background:var(--dark);padding:52px 44px;position:relative;overflow:hidden;transition:background .3s;cursor:default}
+.how-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .4s var(--e)}
+.how-card:hover{background:#1e1e1e}
+.how-card:hover::after{transform:scaleX(1)}
+.how-n{font-family:'Montserrat',sans-serif;font-size:5rem;font-weight:900;color:rgba(255,255,255,.04);line-height:1;margin-bottom:32px;letter-spacing:-.05em}
+.how-title{font-family:'Montserrat',sans-serif;font-size:1.15rem;font-weight:700;color:var(--white);margin-bottom:14px}
+.how-desc{font-size:.9rem;color:rgba(240,240,240,.42);line-height:1.75}
+
+/* SERVICES */
+#services{background:var(--bg);padding:120px 52px}
+.services-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:72px;gap:40px;flex-wrap:wrap}
+.services-intro p{font-size:1rem;color:#555;max-width:400px;line-height:1.75;margin-top:14px}
+.services-stack{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.srv{background:var(--white);border-radius:20px;padding:48px 44px;position:relative;overflow:hidden;cursor:default;border:1px solid transparent;transition:transform .35s var(--e),box-shadow .35s,border-color .35s}
+.srv:hover{transform:translateY(-6px);box-shadow:0 32px 80px rgba(24,24,24,.1);border-color:rgba(75,120,118,.15)}
+.srv-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px}
+.srv-icon{width:54px;height:54px;border-radius:14px;background:rgba(75,120,118,.08);display:grid;place-items:center;font-size:1.5rem;transition:background .3s,transform .3s var(--e)}
+.srv:hover .srv-icon{background:var(--accent);transform:rotate(-8deg) scale(1.05)}
+.srv-num{font-family:'Montserrat',sans-serif;font-size:4rem;font-weight:900;color:rgba(24,24,24,.05);line-height:1;letter-spacing:-.05em}
+.srv h3{font-family:'Montserrat',sans-serif;font-size:1.25rem;font-weight:800;color:var(--dark);margin-bottom:12px}
+.srv p{font-size:.9rem;color:#666;line-height:1.75}
+.srv-arrow{display:inline-flex;align-items:center;gap:8px;font-size:.75rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);margin-top:24px;transition:gap .25s var(--e)}
+.srv:hover .srv-arrow{gap:14px}
+.srv-arrow::after{content:'→'}
+
+/* BLOG */
+#blog{background:var(--dark);padding:120px 52px}
+.blog-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:72px;flex-wrap:wrap;gap:24px}
+.view-all{font-size:.78rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(240,240,240,.35);border-bottom:1px solid rgba(240,240,240,.12);padding-bottom:2px;transition:color .25s,border-color .25s}
+.view-all:hover{color:var(--accent);border-color:var(--accent)}
+.blog-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:20px}
+.blog-card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;cursor:pointer;transition:transform .35s var(--e),border-color .35s,background .35s}
+.blog-card:hover{transform:translateY(-6px);border-color:rgba(75,120,118,.25);background:rgba(255,255,255,.05)}
+.blog-thumb{height:220px;display:grid;place-items:center;font-size:3rem;background:linear-gradient(135deg,rgba(75,120,118,.15),rgba(75,120,118,.04));position:relative;overflow:hidden}
+.blog-card:not(.featured) .blog-thumb{height:160px;font-size:2rem}
+.blog-thumb-glow{position:absolute;inset:0;background:radial-gradient(circle at 30% 60%,rgba(75,120,118,.18),transparent 60%)}
+.blog-body{padding:28px}
+.blog-cat{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.blog-card h4{font-family:'Montserrat',sans-serif;font-size:1rem;font-weight:700;color:var(--white);line-height:1.4;margin-bottom:10px}
+.blog-card.featured h4{font-size:1.15rem}
+.blog-card p{font-size:.85rem;color:rgba(240,240,240,.38);line-height:1.7}
+.blog-meta{display:flex;gap:14px;align-items:center;margin-top:18px;font-size:.72rem;color:rgba(240,240,240,.22);letter-spacing:.05em}
+.blog-meta .sep{width:3px;height:3px;background:rgba(240,240,240,.18);border-radius:50%}
+
+/* JOIN */
+#join{background:var(--bg);padding:120px 52px}
+.join-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.join-left p{font-size:1.05rem;color:#555;line-height:1.8;margin-top:20px;margin-bottom:36px;max-width:440px}
+.join-form-wrap{background:var(--white);border-radius:24px;padding:52px 48px;box-shadow:0 20px 80px rgba(24,24,24,.07);position:relative;overflow:hidden}
+.join-form-wrap::before{content:'';position:absolute;top:-100px;right:-100px;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(75,120,118,.07),transparent 70%);pointer-events:none}
+.join-form-wrap h3{font-family:'Montserrat',sans-serif;font-size:1.4rem;font-weight:800;color:var(--dark);margin-bottom:6px}
+.join-form-wrap .sub{font-size:.88rem;color:var(--mid);margin-bottom:28px}
+.field{display:flex;align-items:center;background:var(--bg);border-radius:10px;border:1.5px solid rgba(24,24,24,.1);overflow:hidden;margin-bottom:12px;transition:border-color .25s,box-shadow .25s}
+.field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(75,120,118,.1)}
+.field input{flex:1;padding:16px 20px;background:none;border:none;outline:none;font-family:'Outfit',sans-serif;font-size:.93rem;color:var(--dark)}
+.field input::placeholder{color:#aaa}
+.join-btn{width:100%;padding:16px;margin-top:6px;background:var(--dark);color:var(--white);border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .25s,transform .2s var(--e),box-shadow .25s}
+.join-btn:hover{background:var(--accent);transform:translateY(-2px);box-shadow:0 12px 40px rgba(75,120,118,.25)}
+.join-note{font-size:.72rem;color:#aaa;text-align:center;margin-top:16px}
+
+/* CONTACT */
+#contact{background:var(--dark);padding:120px 52px}
+.contact-layout{display:grid;grid-template-columns:1fr 1.1fr;gap:80px;align-items:start}
+.contact-left p{font-size:1rem;color:rgba(240,240,240,.45);line-height:1.8;margin:20px 0 36px}
+.contact-info{display:flex;flex-direction:column;gap:18px;margin-bottom:40px}
+.ci{display:flex;align-items:center;gap:16px}
+.ci-icon{width:42px;height:42px;border-radius:12px;background:rgba(75,120,118,.1);border:1px solid rgba(75,120,118,.2);display:grid;place-items:center;font-size:.95rem;flex-shrink:0}
+.ci-label{font-size:.65rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(240,240,240,.28);margin-bottom:2px}
+.ci-val{font-size:.9rem;color:rgba(240,240,240,.65)}
+.cform{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);border-radius:22px;padding:44px 40px}
+.cform-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:.65rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(240,240,240,.28);margin-bottom:7px}
+.fc{width:100%;padding:14px 18px;background:rgba(255,255,255,.04);border:1.5px solid rgba(255,255,255,.08);border-radius:10px;font-family:'Outfit',sans-serif;font-size:.92rem;color:rgba(240,240,240,.85);outline:none;transition:border-color .25s,background .25s}
+.fc:focus{border-color:var(--accent);background:rgba(75,120,118,.05)}
+.fc::placeholder{color:rgba(255,255,255,.18)}
+textarea.fc{min-height:120px;resize:vertical}
+.cform-submit{width:100%;padding:16px;margin-top:8px;background:var(--accent);color:var(--white);border:none;border-radius:10px;font-family:'Montserrat',sans-serif;font-weight:800;font-size:.82rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:background .25s,transform .2s var(--e),box-shadow .25s}
+.cform-submit:hover{background:var(--white);color:var(--dark);transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,.18)}
+
+/* FOOTER */
+footer{background:#0e0e0e;padding:80px 52px 40px}
+.footer-top{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:52px;padding-bottom:60px;border-bottom:1px solid rgba(255,255,255,.06)}
+.footer-brand p{font-size:.87rem;color:rgba(255,255,255,.28);line-height:1.8;margin-top:20px;max-width:280px}
+.footer-logo-svg{height:34px;opacity:.8}
+.socials{display:flex;gap:10px;margin-top:24px}
+.soc-btn{width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);display:grid;place-items:center;cursor:pointer;color:rgba(255,255,255,.38);text-decoration:none;transition:background .2s,color .2s,border-color .2s;font-size:.9rem}
+.soc-btn:hover{background:var(--accent);color:var(--white);border-color:var(--accent)}
+.foot-col h6{font-family:'Montserrat',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:20px}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.foot-col a{font-size:.87rem;color:rgba(255,255,255,.28);transition:color .2s}
+.foot-col a:hover{color:var(--accent2)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:28px;flex-wrap:wrap;gap:16px}
+.footer-bottom p,.footer-bottom a{font-size:.78rem;color:rgba(255,255,255,.18)}
+.footer-bottom a:hover{color:rgba(255,255,255,.45)}
+.footer-bottom-links{display:flex;gap:24px}
+
+/* ANIMATIONS */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s var(--e),transform .8s var(--e)}
+.reveal.up{opacity:1;transform:translateY(0)}
+.reveal-left{opacity:0;transform:translateX(-40px);transition:opacity .8s var(--e),transform .8s var(--e)}
+.reveal-left.up{opacity:1;transform:translateX(0)}
+.reveal-right{opacity:0;transform:translateX(40px);transition:opacity .8s var(--e),transform .8s var(--e)}
+.reveal-right.up{opacity:1;transform:translateX(0)}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+
+/* TOAST */
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:var(--white);padding:14px 28px;border-radius:100px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .4s,transform .4s;z-index:9999;box-shadow:0 12px 40px rgba(75,120,118,.4);white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:1024px){
+  .blog-grid{grid-template-columns:1fr 1fr}
+  .blog-card:first-child{grid-column:span 2}
+  .about-layout{grid-template-columns:1fr}
+  .about-left{padding:80px 52px 40px}
+  .about-right{padding:60px 52px}
+}
+@media(max-width:900px){
+  nav{padding:0 24px}
+  .nav-center,.nav-pill{display:none}
+  .hamburger{display:flex}
+  #hero{padding:0 24px 60px}
+  .hero-top{padding:24px}
+  .hero-bottom{grid-template-columns:1fr;gap:24px}
+  .hero-stats-wrap{justify-content:flex-start}
+  .hero-cta-wrap{align-items:flex-start}
+  .sec{padding:80px 24px}
+  .how-grid{grid-template-columns:1fr}
+  .services-stack{grid-template-columns:1fr}
+  .services-header{flex-direction:column;align-items:flex-start}
+  .blog-grid{grid-template-columns:1fr}
+  .blog-card:first-child{grid-column:span 1}
+  .join-layout{grid-template-columns:1fr}
+  .contact-layout{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr;gap:36px}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .cform-row{grid-template-columns:1fr}
+  .hero-scroll{display:none}
+  .about-left{padding:80px 24px 40px}
+  .about-right{padding:60px 24px}
+}
+@media(max-width:560px){
+  .hero-h1{font-size:clamp(2.6rem,12vw,3.4rem)}
+  .hero-stats-wrap{flex-wrap:wrap;gap:24px}
+  .footer-top{grid-template-columns:1fr}
+  .join-form-wrap{padding:36px 24px}
+  .cform{padding:28px 20px}
+}
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cring"></div>
+
+<!-- NAV -->
+<nav id="nav" class="hero-nav">
+  <div class="nav-logo-wrap" onclick="scrollTo(0,0)">
+    <svg viewBox="0 0 247 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M21.5714 76.6411C17.0989 78.3538 49.2648 52.4169 31.8977 46.0253C27.7159 44.4863 20.3832 49.0749 18.5193 53.368C16.4857 47.2672 29.2197 36.3961 30.09 36.3961C55.1132 36.3961 54.9377 63.8639 21.5714 76.6411Z" fill="url(#nh1)"/>
+      <path d="M35.4948 7.77805C35.4948 12.0737 32.0124 15.5561 27.7167 15.5561C23.4209 15.5561 19.9385 12.0737 19.9385 7.77805C19.9385 3.48235 23.4209 0 27.7167 0C32.0124 0 35.4948 3.48235 35.4948 7.77805Z" fill="white"/>
+      <path d="M0.712086 79.7672C-5.03517 84.0414 37.6616 28.0495 17.6339 28.0495C0.657305 28.0495 15.5703 47.147 11.9588 50.4076C3.704 50.4076 -14.3528 21.9942 21.2457 18.7336C64.3612 20.1718 13.7486 70.072 0.712086 79.7672Z" fill="white"/>
+      <path d="M228.022 26.4938H243.749V32.3737H228.022V26.4938ZM228.582 39.9337H246.362V46.0003H221.069V13.3339H245.756V19.4005H228.582V39.9337Z" fill="white"/>
+      <path d="M192.068 46.0003L177.975 13.3339H186.141L198.462 42.267H193.655L206.162 13.3339H213.675L199.535 46.0003H192.068Z" fill="white"/>
+      <path d="M139.355 46.0003L153.916 13.3339H161.382L175.989 46.0003H168.056L156.109 17.1605H159.096L147.102 46.0003H139.355ZM146.636 39.0004L148.642 33.2604H165.442L167.496 39.0004H146.636Z" fill="white"/>
+      <path d="M104.666 46.0003V13.3339H118.806C121.73 13.3339 124.251 13.8161 126.366 14.7805C128.482 15.7138 130.115 17.0672 131.266 18.8405C132.417 20.6138 132.993 22.7294 132.993 25.1871C132.993 27.6138 132.417 29.7138 131.266 31.4871C130.115 33.2293 128.482 34.5671 126.366 35.5004C124.251 36.4337 121.73 36.9004 118.806 36.9004H108.866L112.226 33.5871V46.0003H104.666ZM125.433 46.0003L117.266 34.1471H125.339L133.599 46.0003H125.433ZM112.226 34.4271L108.866 30.8804H118.386C120.719 30.8804 122.462 30.3826 123.613 29.3871C124.764 28.3604 125.339 26.9604 125.339 25.1871C125.339 23.3827 124.764 21.9827 123.613 20.9871C122.462 19.9916 120.719 19.4938 118.386 19.4938H108.866L112.226 15.9005V34.4271Z" fill="white"/>
+      <path d="M64.3158 46.0003V13.3339H80.2759C84.3826 13.3339 87.4626 14.1116 89.5159 15.6672C91.6004 17.2227 92.6426 19.276 92.6426 21.8271C92.6426 23.5382 92.2226 25.0316 91.3826 26.3071C90.5426 27.5515 89.3915 28.516 87.9293 29.2004C86.467 29.8849 84.787 30.2271 82.8892 30.2271L83.7759 28.3138C85.8293 28.3138 87.6493 28.656 89.2359 29.3404C90.8226 29.9937 92.0515 30.9737 92.9226 32.2804C93.8248 33.5871 94.276 35.1893 94.276 37.087C94.276 39.887 93.1715 42.0803 90.9626 43.667C88.7537 45.2225 85.5026 46.0003 81.2092 46.0003H64.3158ZM71.8292 40.307H80.6492C82.6092 40.307 84.087 39.9959 85.0826 39.3737C86.1093 38.7204 86.6226 37.6937 86.6226 36.2937C86.6226 34.9248 86.1093 33.9137 85.0826 33.2604C84.087 32.576 82.6092 32.2337 80.6492 32.2337H71.2692V26.7271H79.3425C81.1781 26.7271 82.5781 26.416 83.5426 25.7938C84.5381 25.1404 85.0359 24.1605 85.0359 22.8538C85.0359 21.5783 84.5381 20.6294 83.5426 20.0072C82.5781 19.3538 81.1781 19.0272 79.3425 19.0272H71.8292V40.307Z" fill="white"/>
+      <defs><linearGradient id="nh1" x1="26.6667" y1="39.0987" x2="38.9188" y2="48.8285" gradientUnits="userSpaceOnUse"><stop stop-color="#999"/><stop offset="1" stop-color="white"/></linearGradient></defs>
+    </svg>
+  </div>
+  <ul class="nav-center">
+    <li><a href="#about">About</a></li>
+    <li><a href="#how">Approach</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#blog">Insights</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="#join" class="nav-pill">Join Free</a>
+  <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+</nav>
+
+<div class="mobile-nav" id="mobileNav">
+  <a href="#about" onclick="closeMob()">About</a>
+  <a href="#how" onclick="closeMob()">Approach</a>
+  <a href="#services" onclick="closeMob()">Services</a>
+  <a href="#blog" onclick="closeMob()">Insights</a>
+  <a href="#join" onclick="closeMob()">Join Free</a>
+  <a href="#contact" onclick="closeMob()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-bg-text">BRAVE</div>
+  <div class="hero-top">
+    <div class="hero-badge">Physiotherapy &amp; Recovery</div>
+    <div class="hero-badge">Expert-Guided Movement</div>
+  </div>
+  <div class="hero-scroll"><div class="scroll-line"></div><div class="scroll-txt">Scroll</div></div>
+  <div class="hero-tag"><span class="dot"></span>Recovery Platform — Now Open</div>
+  <h1 class="hero-h1">
+    Take Control<br>of Your&nbsp;<em>Recovery</em><br><span class="outline">Journey</span>
+  </h1>
+  <div class="hero-bottom">
+    <p class="hero-sub">Reduce pain, improve mobility, and build strength with expert-guided physiotherapy and personalized movement programs.</p>
+    <div class="hero-cta-wrap">
+      <a href="#join" class="hero-cta">Get Started Today</a>
+      <span class="hero-cta-note">Free — No commitment required</span>
+    </div>
+    <div class="hero-stats-wrap">
+      <div class="hero-stat"><div class="v"><span id="c1">0</span>+</div><div class="l">Programs</div></div>
+      <div class="hero-stat"><div class="v"><span id="c2">0</span>%</div><div class="l">Success Rate</div></div>
+      <div class="hero-stat"><div class="v"><span id="c3">0</span>+</div><div class="l">Recovered</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-inner">
+    <span class="marquee-item">Back Pain Relief</span><span class="marquee-item">Injury Recovery</span><span class="marquee-item">Mobility &amp; Posture</span><span class="marquee-item">Strength Building</span><span class="marquee-item">Pain Prevention</span><span class="marquee-item">Expert Guidance</span><span class="marquee-item">Back Pain Relief</span><span class="marquee-item">Injury Recovery</span><span class="marquee-item">Mobility &amp; Posture</span><span class="marquee-item">Strength Building</span><span class="marquee-item">Pain Prevention</span><span class="marquee-item">Expert Guidance</span>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="about-layout">
+    <div class="about-left reveal-left">
+      <div class="sec-label">About Us</div>
+      <h2 class="h2" style="margin-bottom:28px">Recovery built on<br><em>science &amp; care</em></h2>
+      <p>Brave Recovery Center is built on the idea that recovery should be simple, effective, and sustainable. Our approach focuses on understanding the root of pain, improving movement, and building strength step by step.</p>
+      <p>We combine physiotherapy principles with modern training methods to help people feel better, move better, and live without limitations.</p>
+      <div class="benefit-list">
+        <div class="benefit"><div class="benefit-check">✓</div><span>Root-cause focused — not just symptom relief</span></div>
+        <div class="benefit"><div class="benefit-check">✓</div><span>Personalized programs for your body &amp; goals</span></div>
+        <div class="benefit"><div class="benefit-check">✓</div><span>Progressive approach for lasting results</span></div>
+        <div class="benefit"><div class="benefit-check">✓</div><span>Expert physiotherapy-based methodology</span></div>
+      </div>
+    </div>
+    <div class="about-right reveal-right">
+      <div class="sec-label" style="color:rgba(75,120,118,.6)">Who It's For</div>
+      <h2 class="h2 h2-light" style="margin-bottom:40px">Built for<br><em>everyone</em></h2>
+      <div class="feature-list">
+        <div class="feature-item"><div class="fi-num">01</div><div><div class="fi-title">Back &amp; Neck Pain Sufferers</div><div class="fi-desc">Targeted programs addressing lower and upper back pain with real, progressive solutions.</div></div></div>
+        <div class="feature-item"><div class="fi-num">02</div><div><div class="fi-title">Injury Recovery</div><div class="fi-desc">Safe rehabilitation designed for each phase of healing — from acute to full function.</div></div></div>
+        <div class="feature-item"><div class="fi-num">03</div><div><div class="fi-title">Active People &amp; Prevention</div><div class="fi-desc">Stay ahead of injuries with corrective work and strength programs built for longevity.</div></div></div>
+        <div class="feature-item"><div class="fi-num">04</div><div><div class="fi-title">Anyone Who Wants to Move Better</div><div class="fi-desc">Stronger, more mobile, more confident — regardless of age or fitness level.</div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW -->
+<section id="how">
+  <div class="container">
+    <div class="sec-label reveal" style="color:rgba(75,120,118,.7)">Our Approach</div>
+    <h2 class="h2 h2-light reveal d1" style="max-width:600px;margin-bottom:0">Three steps to <em>lasting</em> results</h2>
+    <div class="how-grid">
+      <div class="how-card reveal d1"><div class="how-n">01</div><div class="how-title">Understand Your Body</div><div class="how-desc">We identify the root cause of your pain — not just the symptoms. Through guided assessment and education, you'll gain real clarity on what's happening and why.</div></div>
+      <div class="how-card reveal d2"><div class="how-n">02</div><div class="how-title">Follow Guided Programs</div><div class="how-desc">Execute personalized exercise and movement plans built on physiotherapy principles. Every session is purposeful, progressive, and designed around your specific needs.</div></div>
+      <div class="how-card reveal d3"><div class="how-n">03</div><div class="how-title">Build Long-Term Resilience</div><div class="how-desc">Progress from recovery into strength and prevention. Build a body that stays recovered — not just healed once.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="container">
+    <div class="services-header">
+      <div class="services-intro">
+        <div class="sec-label reveal">Services</div>
+        <h2 class="h2 reveal d1">What We <em>Help With</em></h2>
+        <p class="reveal d2">Specialized programs built around the most common pain and movement challenges.</p>
+      </div>
+      <a href="#contact" class="hero-cta reveal" style="font-size:.78rem;padding:15px 32px;align-self:flex-end">Book a Consultation</a>
+    </div>
+    <div class="services-stack">
+      <div class="srv reveal d1"><div class="srv-top"><div class="srv-icon">🦴</div><div class="srv-num">01</div></div><h3>Back Pain Relief</h3><p>Understand and address the causes of lower back pain through targeted movement and strengthening. Includes assessment, mobility work, and progressive loading protocols for lasting relief.</p><div class="srv-arrow">Most Popular</div></div>
+      <div class="srv reveal d2"><div class="srv-top"><div class="srv-icon">🔄</div><div class="srv-num">02</div></div><h3>Injury Recovery</h3><p>Support your recovery process with safe, progressive exercises designed for each phase of healing — from acute pain management to full return to daily activity and sport.</p><div class="srv-arrow">Learn More</div></div>
+      <div class="srv reveal d3"><div class="srv-top"><div class="srv-icon">🧘</div><div class="srv-num">03</div></div><h3>Mobility &amp; Posture</h3><p>Improve how your body moves and reduce strain in everyday activities. Address posture, joint range of motion, and movement quality through targeted corrective work.</p><div class="srv-arrow">Learn More</div></div>
+      <div class="srv reveal d4"><div class="srv-top"><div class="srv-icon">💪</div><div class="srv-num">04</div></div><h3>Strength &amp; Prevention</h3><p>Build a stronger body to prevent future pain and injuries. Designed for people who are recovering or want to move with greater resilience and long-term confidence.</p><div class="srv-arrow">Learn More</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog">
+  <div class="container">
+    <div class="blog-header">
+      <div><div class="sec-label reveal" style="color:rgba(75,120,118,.7)">Education</div><h2 class="h2 h2-light reveal d1">Recovery &amp; Movement <em>Insights</em></h2></div>
+      <a href="#blog" class="view-all reveal d2">View All Posts</a>
+    </div>
+    <div class="blog-grid">
+      <div class="blog-card featured reveal d1"><div class="blog-thumb" style="height:260px;font-size:3.5rem">🦴<div class="blog-thumb-glow"></div></div><div class="blog-body"><div class="blog-cat">Back Pain</div><h4>Why Your Back Pain Keeps Coming Back — And What To Do About It</h4><p>Understanding the cycle of recurring pain and the key factors that prevent true, lasting recovery.</p><div class="blog-meta"><span>5 min read</span><span class="sep"></span><span>Recovery</span></div></div></div>
+      <div class="blog-card reveal d2"><div class="blog-thumb">🏋️<div class="blog-thumb-glow"></div></div><div class="blog-body"><div class="blog-cat">Exercises</div><h4>3 Simple Exercises to Reduce Neck Pain</h4><p>Practical movements you can do at home today.</p><div class="blog-meta"><span>4 min read</span><span class="sep"></span><span>Neck Pain</span></div></div></div>
+      <div class="blog-card reveal d3"><div class="blog-thumb">⚠️<div class="blog-thumb-glow"></div></div><div class="blog-body"><div class="blog-cat">Recovery</div><h4>Common Mistakes During Recovery</h4><p>Avoid these errors for a faster, safer return to full function.</p><div class="blog-meta"><span>6 min read</span><span class="sep"></span><span>Injury</span></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- JOIN -->
+<section id="join">
+  <div class="container">
+    <div class="join-layout">
+      <div class="join-left reveal-left">
+        <div class="sec-label">Community</div>
+        <h2 class="h2">Join the<br><em>Recovery</em><br>Community</h2>
+        <p>Get free tips, exercises, and expert guidance to help you reduce pain and move better — delivered to your inbox. No spam. No fluff. Just results.</p>
+        <div class="benefit-list">
+          <div class="benefit"><div class="benefit-check">✓</div><span>Weekly recovery exercises &amp; tips</span></div>
+          <div class="benefit"><div class="benefit-check">✓</div><span>Educational content on pain &amp; movement</span></div>
+          <div class="benefit"><div class="benefit-check">✓</div><span>Early access to new programs</span></div>
+        </div>
+      </div>
+      <div class="reveal-right d2">
+        <div class="join-form-wrap">
+          <h3>Start for Free</h3>
+          <p class="sub">Join hundreds already recovering smarter.</p>
+          <div class="field"><input type="text" placeholder="Your full name" id="jname"/></div>
+          <div class="field"><input type="email" placeholder="Your email address" id="jemail"/></div>
+          <button class="join-btn" onclick="handleJoin()">Join the Community →</button>
+          <p class="join-note">Free forever · Unsubscribe any time · No spam</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="contact-layout">
+      <div class="contact-left reveal-left">
+        <div class="sec-label" style="color:rgba(75,120,118,.7)">Get in Touch</div>
+        <h2 class="h2 h2-light">Let's start your<br><em>recovery</em> today</h2>
+        <p>Have questions or want guidance? Reach out and we'll help you get started on the right path.</p>
+        <div class="contact-info">
+          <div class="ci"><div class="ci-icon">📸</div><div><div class="ci-label">Instagram</div><div class="ci-val">@braverecoverycenter</div></div></div>
+          <div class="ci"><div class="ci-icon">📍</div><div><div class="ci-label">Location</div><div class="ci-val">Online consultations available</div></div></div>
+          <div class="ci"><div class="ci-icon">⏱</div><div><div class="ci-label">Response Time</div><div class="ci-val">Within 24 hours</div></div></div>
+        </div>
+      </div>
+      <div class="reveal-right d2">
+        <div class="cform">
+          <div class="cform-row"><div class="fg"><label>Name</label><input class="fc" type="text" placeholder="Your full name" id="cn"/></div><div class="fg"><label>Email</label><input class="fc" type="email" placeholder="your@email.com" id="ce"/></div></div>
+          <div class="fg"><label>Topic</label><input class="fc" type="text" placeholder="e.g. Back pain, injury recovery…" id="ct"/></div>
+          <div class="fg"><label>Message</label><textarea class="fc" placeholder="Tell us about your situation…" id="cm"></textarea></div>
+          <button class="cform-submit" onclick="handleContact()">Send Message →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <svg class="footer-logo-svg" viewBox="0 0 247 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M21.5714 76.6411C17.0989 78.3538 49.2648 52.4169 31.8977 46.0253C27.7159 44.4863 20.3832 49.0749 18.5193 53.368C16.4857 47.2672 29.2197 36.3961 30.09 36.3961C55.1132 36.3961 54.9377 63.8639 21.5714 76.6411Z" fill="rgba(255,255,255,0.3)"/>
+          <path d="M35.4948 7.77805C35.4948 12.0737 32.0124 15.5561 27.7167 15.5561C23.4209 15.5561 19.9385 12.0737 19.9385 7.77805C19.9385 3.48235 23.4209 0 27.7167 0C32.0124 0 35.4948 3.48235 35.4948 7.77805Z" fill="white"/>
+          <path d="M0.712086 79.7672C-5.03517 84.0414 37.6616 28.0495 17.6339 28.0495C0.657305 28.0495 15.5703 47.147 11.9588 50.4076C3.704 50.4076 -14.3528 21.9942 21.2457 18.7336C64.3612 20.1718 13.7486 70.072 0.712086 79.7672Z" fill="white"/>
+          <path d="M228.022 26.4938H243.749V32.3737H228.022V26.4938ZM228.582 39.9337H246.362V46.0003H221.069V13.3339H245.756V19.4005H228.582V39.9337Z" fill="white"/>
+          <path d="M192.068 46.0003L177.975 13.3339H186.141L198.462 42.267H193.655L206.162 13.3339H213.675L199.535 46.0003H192.068Z" fill="white"/>
+          <path d="M139.355 46.0003L153.916 13.3339H161.382L175.989 46.0003H168.056L156.109 17.1605H159.096L147.102 46.0003H139.355ZM146.636 39.0004L148.642 33.2604H165.442L167.496 39.0004H146.636Z" fill="white"/>
+          <path d="M104.666 46.0003V13.3339H118.806C121.73 13.3339 124.251 13.8161 126.366 14.7805C128.482 15.7138 130.115 17.0672 131.266 18.8405C132.417 20.6138 132.993 22.7294 132.993 25.1871C132.993 27.6138 132.417 29.7138 131.266 31.4871C130.115 33.2293 128.482 34.5671 126.366 35.5004C124.251 36.4337 121.73 36.9004 118.806 36.9004H108.866L112.226 33.5871V46.0003H104.666ZM125.433 46.0003L117.266 34.1471H125.339L133.599 46.0003H125.433ZM112.226 34.4271L108.866 30.8804H118.386C120.719 30.8804 122.462 30.3826 123.613 29.3871C124.764 28.3604 125.339 26.9604 125.339 25.1871C125.339 23.3827 124.764 21.9827 123.613 20.9871C122.462 19.9916 120.719 19.4938 118.386 19.4938H108.866L112.226 15.9005V34.4271Z" fill="white"/>
+          <path d="M64.3158 46.0003V13.3339H80.2759C84.3826 13.3339 87.4626 14.1116 89.5159 15.6672C91.6004 17.2227 92.6426 19.276 92.6426 21.8271C92.6426 23.5382 92.2226 25.0316 91.3826 26.3071C90.5426 27.5515 89.3915 28.516 87.9293 29.2004C86.467 29.8849 84.787 30.2271 82.8892 30.2271L83.7759 28.3138C85.8293 28.3138 87.6493 28.656 89.2359 29.3404C90.8226 29.9937 92.0515 30.9737 92.9226 32.2804C93.8248 33.5871 94.276 35.1893 94.276 37.087C94.276 39.887 93.1715 42.0803 90.9626 43.667C88.7537 45.2225 85.5026 46.0003 81.2092 46.0003H64.3158ZM71.8292 40.307H80.6492C82.6092 40.307 84.087 39.9959 85.0826 39.3737C86.1093 38.7204 86.6226 37.6937 86.6226 36.2937C86.6226 34.9248 86.1093 33.9137 85.0826 33.2604C84.087 32.576 82.6092 32.2337 80.6492 32.2337H71.2692V26.7271H79.3425C81.1781 26.7271 82.5781 26.416 83.5426 25.7938C84.5381 25.1404 85.0359 24.1605 85.0359 22.8538C85.0359 21.5783 84.5381 20.6294 83.5426 20.0072C82.5781 19.3538 81.1781 19.0272 79.3425 19.0272H71.8292V40.307Z" fill="white"/>
+        </svg>
+        <p>Helping people reduce pain, improve mobility, and build strength through expert physiotherapy and movement education.</p>
+        <div class="socials">
+          <a class="soc-btn" href="#"><svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+          <a class="soc-btn" href="#"><svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg></a>
+        </div>
+      </div>
+      <div class="foot-col"><h6>Pages</h6><ul><li><a href="#hero">Home</a></li><li><a href="#about">About</a></li><li><a href="#services">Services</a></li><li><a href="#blog">Insights</a></li><li><a href="#contact">Contact</a></li></ul></div>
+      <div class="foot-col"><h6>Services</h6><ul><li><a href="#services">Back Pain Relief</a></li><li><a href="#services">Injury Recovery</a></li><li><a href="#services">Mobility &amp; Posture</a></li><li><a href="#services">Strength &amp; Prevention</a></li></ul></div>
+      <div class="foot-col"><h6>Community</h6><ul><li><a href="#join">Join Free</a></li><li><a href="#blog">Articles</a></li><li><a href="#contact">Get Guidance</a></li></ul></div>
+    </div>
+    <div class="footer-bottom"><p>© 2025 Brave Recovery Center. All rights reserved.</p><div class="footer-bottom-links"><a href="#">Privacy Policy</a><a href="#">Terms of Use</a></div></div>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// CURSOR
+const cur=document.getElementById('cursor'),ring=document.getElementById('cring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px'});
+(function animR(){rx+=(mx-rx)*.12;ry+=(my-ry)*.12;ring.style.left=rx+'px';ring.style.top=ry+'px';requestAnimationFrame(animR)})();
+document.querySelectorAll('a,button,.srv,.blog-card,.feature-item,.how-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='16px';cur.style.height='16px';ring.style.width='52px';ring.style.height='52px'});
+  el.addEventListener('mouseleave',()=>{cur.style.width='10px';cur.style.height='10px';ring.style.width='36px';ring.style.height='36px'});
+});
+
+// NAV
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>{
+  const y=window.scrollY,h=document.getElementById('hero').offsetHeight;
+  nav.classList.toggle('filled',y>40);
+  if(y>h-80)nav.classList.remove('hero-nav');
+  else nav.classList.add('hero-nav');
+});
+
+// HAMBURGER
+const ham=document.getElementById('hamburger'),mob=document.getElementById('mobileNav');
+ham.addEventListener('click',()=>{ham.classList.toggle('open');mob.classList.toggle('open');document.body.style.overflow=mob.classList.contains('open')?'hidden':''});
+function closeMob(){ham.classList.remove('open');mob.classList.remove('open');document.body.style.overflow=''}
+
+// REVEAL
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('up')}),{threshold:.12});
+document.querySelectorAll('.reveal,.reveal-left,.reveal-right').forEach(el=>obs.observe(el));
+
+// COUNTERS
+function count(el,t,d=2000){
+  let s=null;
+  (function step(ts){if(!s)s=ts;const p=Math.min((ts-s)/d,1),ease=1-Math.pow(1-p,4);el.textContent=Math.floor(ease*t);if(p<1)requestAnimationFrame(step);else el.textContent=t})();
+}
+let counted=false;
+new IntersectionObserver(([e])=>{if(e.isIntersecting&&!counted){counted=true;setTimeout(()=>{count(document.getElementById('c1'),50);count(document.getElementById('c2'),94);count(document.getElementById('c3'),1200)},400)}},{threshold:.3}).observe(document.getElementById('hero'));
+
+// TOAST
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3200)}
+
+// FORMS
+function handleJoin(){
+  const e=document.getElementById('jemail').value.trim();
+  if(!e||!e.includes('@')){toast('Please enter a valid email.');return}
+  document.getElementById('jname').value='';document.getElementById('jemail').value='';
+  toast('✓  Welcome to the community!');
+}
+function handleContact(){
+  const n=document.getElementById('cn').value.trim(),e=document.getElementById('ce').value.trim(),m=document.getElementById('cm').value.trim();
+  if(!n||!e||!m){toast('Please fill in all required fields.');return}
+  ['cn','ce','ct','cm'].forEach(id=>document.getElementById(id).value='');
+  toast("✓  Message sent — we'll reply within 24h!");
+}
+
+// SMOOTH SCROLL
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{const t=document.querySelector(a.getAttribute('href'));if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'})}});
+});
+</script>
+</body>
+</html>

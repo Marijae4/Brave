@@ -1,0 +1,10 @@
+<svg width="180" height="40" viewBox="0 0 180 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <text x="50" y="28" font-family="Montserrat, sans-serif" font-weight="600" font-size="18" fill="#4B7876">
+    BRAVE
+  </text>
+  <text x="50" y="36" font-family="Outfit, sans-serif" font-weight="400" font-size="8" fill="#4B7876" letter-spacing="1">
+    RECOVERY CENTER
+  </text>
+  <circle cx="20" cy="20" r="12" stroke="#4B7876" stroke-width="2" fill="none"/>
+  <path d="M20 14 L20 26 M14 20 L26 20" stroke="#4B7876" stroke-width="2" stroke-linecap="round"/>
+</svg>
